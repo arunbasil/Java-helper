@@ -32,4 +32,107 @@ To add these Java versions to `jenv` and make version 17 the global version, you
 
    This should display `17.0.10` as the current global Java version.
 
-Let me know if you encounter any issues or need further assistance!
+`jenv` is a powerful tool that manages different versions of Java on your system. Here are some additional things you can do with `jenv`:
+
+### 1. **List All Installed Java Versions**
+   You can list all the Java versions that `jenv` is currently managing:
+
+   ```bash
+   jenv versions
+   ```
+
+   This will show you all the versions added to `jenv`, with an asterisk (`*`) next to the currently active version.
+
+### 2. **Set a Local Java Version**
+   If you want to set a specific Java version for a particular project or directory, you can use the `local` command. This will create a `.java-version` file in the directory that specifies the version:
+
+   ```bash
+   jenv local 17.0.10
+   ```
+
+   This sets Java 17 as the default version whenever you are in this directory.
+
+### 3. **Set a Shell-Specific Java Version**
+   If you want to set a Java version for the current shell session only, you can use the `shell` command:
+
+   ```bash
+   jenv shell 17.0.10
+   ```
+
+   This will switch the Java version for the duration of the session or until you close the terminal.
+
+### 4. **Remove a Java Version from jenv**
+   If you no longer need a specific Java version, you can remove it from `jenv`:
+
+   ```bash
+   jenv remove /Library/Java/JavaVirtualMachines/jdk-20.jdk/Contents/Home
+   ```
+
+   Replace the path with the actual path to the Java version you want to remove.
+
+### 5. **Enable or Disable Plugins**
+   `jenv` comes with various plugins that add additional functionality. For example, you can enable a plugin for Maven to ensure it uses the `jenv`-managed Java version:
+
+   ```bash
+   jenv enable-plugin maven
+   ```
+
+   To list all available plugins:
+
+   ```bash
+   jenv plugins
+   ```
+
+   You can disable a plugin by using:
+
+   ```bash
+   jenv disable-plugin maven
+   ```
+
+### 6. **Refresh `jenv` Configuration**
+   If you make changes to the environment or the Java installation paths, you might need to refresh `jenv` to pick up the changes:
+
+   ```bash
+   jenv rehash
+   ```
+
+   This will re-scan your installed Java versions and update `jenv`'s configuration.
+
+### 7. **Global or Local Environment Variables**
+   `jenv` allows you to set environment variables globally or locally that are associated with your Java version. For example, you might set the `JAVA_HOME` environment variable globally:
+
+   ```bash
+   jenv global 17.0.10
+   jenv exec echo $JAVA_HOME
+   ```
+
+   You can also configure environment variables on a per-project basis by using `.java-version` and a `.jenvrc` file in your project directory.
+
+### 8. **Check Java Version Information**
+   If you want to see more details about a specific Java version, such as its path:
+
+   ```bash
+   jenv which java
+   ```
+
+   This shows the path of the currently active Java binary.
+
+### 9. **Automatic Version Switching**
+   When you navigate into a directory with a `.java-version` file, `jenv` will automatically switch to the specified version, making it convenient for managing projects that require different Java versions.
+
+### 10. **View Java Version Details**
+   You can view detailed information about a specific Java version that is managed by `jenv`:
+
+   ```bash
+   jenv info 17.0.10
+   ```
+
+   This command will give you detailed information like the Java version, vendor, and installation path.
+
+### 11. **Configure Environment Variables for Build Tools**
+   You can configure environment variables for tools like Maven, Ant, or Gradle, ensuring they use the correct Java version.
+
+### 12. **JDK Version Compatibility**
+   With `jenv`, you can test your code across multiple Java versions easily, ensuring compatibility and catching potential issues early.
+
+These are just a few examples of what you can do with `jenv`. It’s a versatile tool that makes managing multiple Java versions much easier and more organized.
