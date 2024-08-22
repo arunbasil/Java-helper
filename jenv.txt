@@ -1,0 +1,35 @@
+To add these Java versions to `jenv` and make version 17 the global version, you can follow these steps:
+
+1. **Add Java Versions to jenv:**
+
+   Run the following commands to add the Java versions to `jenv`:
+
+   ```bash
+   jenv add /Library/Java/JavaVirtualMachines/jdk-20.jdk/Contents/Home
+   jenv add /Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
+   jenv add /Library/Java/JavaVirtualMachines/amazon-corretto-8.jdk/Contents/Home
+   ```
+
+   This will add the Java versions you have installed to `jenv`.
+
+2. **Set Java 17 as Global Version:**
+
+   After adding the Java versions, you can set Java 17 as the global version by running:
+
+   ```bash
+   jenv global 17.0.10
+   ```
+
+   This command sets the global Java version to 17.0.10, making it the default version for all shells and applications.
+
+3. **Verify the Global Version:**
+
+   To verify that Java 17 is now set as the global version, you can use the following command:
+
+   ```bash
+   jenv version
+   ```
+
+   This should display `17.0.10` as the current global Java version.
+
+Let me know if you encounter any issues or need further assistance!
