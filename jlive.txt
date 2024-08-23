@@ -1,0 +1,22 @@
+SELECT 
+    jnt.CUSTOMER1_NO AS JointCustomerNumber,
+    jnt.RELATIONSHIP_CODE,
+    jnt.RELATIONSHIP_TYPE,
+    JSON_AGG(
+        JSON_BUILD_OBJECT(
+            'customerNumber', cust.CUSTOMER_NO,
+            'accountName', cust.CUSTOMER_NAME
+        )
+    ) AS IndividualAccounts
+FROM 
+    Customer_Relationship_Table jnt
+JOIN 
+    Customer_Table cust 
+ON 
+    jnt.CUSTOMER2_NO = cust.CUSTOMER_NO
+WHERE 
+    jnt.CUSTOMER1_NO = 54536247
+GROUP BY 
+    jnt.CUSTOMER1_NO, 
+    jnt.RELATIONSHIP_CODE, 
+    jnt.RELATIONSHIP_TYPE;
