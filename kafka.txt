@@ -1,0 +1,141 @@
+Here are some **positive** and **negative** test cases for the Kafka producer, considering that logs will be retained in Kafka for six weeks and then ingested into Snowflake.
+
+### **Positive Test Cases:**
+
+1. **Log Event Successfully Published to Kafka Topic**
+   - **Test Case**: Verify that the Kafka producer successfully publishes log events to the correct Kafka topic.
+   - **Expected Result**: The log event is successfully published to the correct topic (`financial-crime.confirmation-of-payee.nameverification-request.log`, etc.).
+   - **Scenario**: API returns a 200 OK response, and the producer successfully sends logs.
+
+2. **Log Event Retained for Six Weeks**
+   - **Test Case**: Verify that log events are retained in Kafka for six weeks.
+   - **Expected Result**: Log events are stored in Kafka without being deleted or altered for the specified retention period (six weeks).
+   - **Scenario**: The log event exists in Kafka even after six weeks, ready for ingestion into Snowflake.
+
+3. **Successful Ingestion of Kafka Logs into Snowflake**
+   - **Test Case**: Verify that the Kafka log events are successfully ingested into Snowflake after six weeks.
+   - **Expected Result**: Log events are correctly ingested into Snowflake tables without any data loss.
+   - **Scenario**: Kafka logs are retained, and after six weeks, Snowflake ingests all events.
+
+4. **Kafka Producer Handles Multiple Log Events**
+   - **Test Case**: Verify that the Kafka producer can handle and publish multiple log events simultaneously.
+   - **Expected Result**: All log events are successfully published and retained for six weeks.
+   - **Scenario**: Kafka producer publishes logs from multiple requests, all of which are stored for six weeks and ingested into Snowflake.
+
+5. **Log Metadata is Accurate**
+   - **Test Case**: Verify that log metadata (timestamp, message type, status code) is accurate when published to Kafka.
+   - **Expected Result**: The metadata fields are correct, and they are retained in Kafka as expected.
+   - **Scenario**: Kafka topics store logs with all necessary metadata for future ingestion.
+
+### **Negative Test Cases:**
+
+1. **Log Event Fails to Publish to Kafka Topic**
+   - **Test Case**: Verify that the Kafka producer handles failures when publishing log events to the Kafka topic.
+   - **Expected Result**: An appropriate error is returned, and the event is retried or logged as failed without affecting the system.
+   - **Scenario**: Simulate API failures (e.g., 4xx/5xx status codes) and check that no event is published.
+
+2. **Log Event Not Retained in Kafka for Six Weeks**
+   - **Test Case**: Verify what happens when log events are not retained for the required six-week period.
+   - **Expected Result**: The system identifies the missing logs, raises alerts, and handles the failure appropriately.
+   - **Scenario**: Force the Kafka topic to purge messages early and test the handling of missing data in Snowflake.
+
+3. **Log Event Corrupted or Incomplete**
+   - **Test Case**: Verify how the system handles a corrupted or incomplete log event in Kafka.
+   - **Expected Result**: Kafka discards or flags the corrupted event, and it is not ingested into Snowflake.
+   - **Scenario**: A log event is published with incomplete data, causing ingestion into Snowflake to fail.
+
+4. **Kafka Topic Reaches Storage Limit Before Six Weeks**
+   - **Test Case**: Verify what happens when the Kafka topic reaches its storage limit before the six-week retention period.
+   - **Expected Result**: Kafka either purges old data or raises an alert, and the system should ensure no data is lost.
+   - **Scenario**: Simulate reaching Kafka’s storage capacity and check whether logs are retained as required.
+
+5. **Failure in Kafka-Snowflake Ingestion**
+   - **Test Case**: Verify that ingestion into Snowflake fails due to a network or configuration error.
+   - **Expected Result**: The ingestion process retries the operation or raises an alert, but no data is lost in Kafka.
+   - **Scenario**: Simulate an ingestion failure into Snowflake and ensure Kafka logs are still available for future ingestion.
+
+6. **Kafka Producer Sends Logs to Incorrect Topic**
+   - **Test Case**: Verify the behavior when the Kafka producer sends log events to an incorrect Kafka topic.
+   - **Expected Result**: The system raises an alert for incorrect log event routing, and logs are not ingested into Snowflake.
+   - **Scenario**: Misconfiguration causes the producer to send logs to the wrong topic, and ingestion into Snowflake fails or logs are lost.
+
+7. **Logs Not Published Due to Spring Boot Failure**
+   - **Test Case**: Verify that if Spring Boot fails, logs are not published into Kafka.
+   - **Expected Result**: Kafka retains no logs for this event, and the system logs the failure.
+   - **Scenario**: Simulate a failure in Spring Boot to see if log publication and subsequent Kafka retention are interrupted.
+
+These test cases cover various scenarios involving Kafka producers, log retention, and Snowflake ingestion. They help ensure the system functions correctly under both normal and adverse conditions.
+
+Kafka schema validation ensures that the structure of messages being produced and consumed in Kafka topics adheres to predefined schemas, typically using **Apache Avro** or other formats like **Protobuf** or **JSON Schema**. This ensures that data consistency is maintained between producers and consumers, which is particularly crucial when the data is later ingested into systems like Snowflake.
+
+Here are **positive** and **negative** test cases for Kafka schema validation:
+
+### **Positive Test Cases for Kafka Schema Validation:**
+
+1. **Valid Avro Schema for Kafka Message**
+   - **Test Case**: Verify that the Kafka producer correctly serializes a message using a valid Avro schema.
+   - **Expected Result**: The message is successfully published to Kafka, and the consumer can deserialize it using the same Avro schema.
+   - **Scenario**: A message with all required fields (correct data types) adheres to the Avro schema and is retained in Kafka for later ingestion.
+
+2. **Schema Evolution Handling**
+   - **Test Case**: Verify that Kafka handles schema evolution when a new field is added to the schema.
+   - **Expected Result**: The producer publishes messages with the new schema, and older consumers can still deserialize older versions without breaking.
+   - **Scenario**: Add a non-mandatory field to the Avro schema and check if both new and old messages are handled correctly by Kafka and downstream systems like Snowflake.
+
+3. **Backward Compatibility Validation**
+   - **Test Case**: Verify that schema validation is backward compatible.
+   - **Expected Result**: Kafka producers using a newer version of the schema can publish messages that consumers with older versions of the schema can read without issues.
+   - **Scenario**: Modify the schema with compatible changes (e.g., adding optional fields) and ensure successful validation on both producer and consumer ends.
+
+4. **Kafka Schema Validation During Ingestion to Snowflake**
+   - **Test Case**: Verify that Kafka messages are ingested into Snowflake only if they match the defined schema.
+   - **Expected Result**: Snowflake successfully ingests valid Kafka messages, while invalid ones are flagged or discarded.
+   - **Scenario**: Ensure that schema-validated Kafka messages are seamlessly ingested into Snowflake.
+
+5. **Kafka Consumer Validates Schema During Deserialization**
+   - **Test Case**: Verify that the Kafka consumer successfully deserializes messages based on the schema.
+   - **Expected Result**: The consumer is able to validate and deserialize the message using the Avro schema.
+   - **Scenario**: Kafka consumer subscribes to a topic and deserializes messages using a schema registry without any errors.
+
+### **Negative Test Cases for Kafka Schema Validation:**
+
+1. **Schema Mismatch Between Producer and Consumer**
+   - **Test Case**: Verify that Kafka produces an error when the producer and consumer use incompatible schemas.
+   - **Expected Result**: The consumer fails to deserialize the message due to a schema mismatch, and an appropriate error is logged.
+   - **Scenario**: Producer uses an updated schema, but the consumer uses an old one, leading to deserialization failure.
+
+2. **Message Without Required Fields**
+   - **Test Case**: Verify the behavior when a Kafka producer sends a message missing required fields according to the schema.
+   - **Expected Result**: The message is rejected, or an error is logged during schema validation, and the message is not published to Kafka.
+   - **Scenario**: The producer attempts to publish a message with missing required fields, leading to validation failure.
+
+3. **Invalid Data Type in Kafka Message**
+   - **Test Case**: Verify that schema validation fails when the message contains an invalid data type (e.g., string instead of integer).
+   - **Expected Result**: The producer fails to publish the message, and an error is returned indicating schema validation failure.
+   - **Scenario**: Send a message with an incorrect data type for one of the fields, and verify that it is rejected by Kafka due to schema mismatch.
+
+4. **Schema Not Registered in Schema Registry**
+   - **Test Case**: Verify that the Kafka producer cannot publish a message if the schema is not registered in the schema registry.
+   - **Expected Result**: Kafka throws an error, and the message is not published.
+   - **Scenario**: Try to publish a message with a schema that has not been registered, leading to a validation error.
+
+5. **Incompatible Changes to Schema**
+   - **Test Case**: Verify that schema validation fails when an incompatible change (e.g., removing a required field or changing a field type) is made to the schema.
+   - **Expected Result**: Kafka rejects the message because the new schema is incompatible with the old one.
+   - **Scenario**: Make a backward-incompatible change to the schema (like removing required fields), and test that the Kafka producer fails to publish messages using the updated schema.
+
+6. **Consumer Fails to Deserialize Message Due to Invalid Schema**
+   - **Test Case**: Verify the behavior when a Kafka consumer tries to deserialize a message that does not match its expected schema.
+   - **Expected Result**: The consumer fails to deserialize the message and throws an error, logging the issue.
+   - **Scenario**: The producer sends a message with an invalid schema, and the consumer fails to process it.
+
+7. **Schema Validation Fails During Ingestion into Snowflake**
+   - **Test Case**: Verify that schema validation fails during ingestion into Snowflake when the Kafka message does not match the expected schema.
+   - **Expected Result**: Snowflake rejects the invalid Kafka message, and an error is logged.
+   - **Scenario**: A message with a mismatched schema is sent to Kafka, but during ingestion into Snowflake, it is rejected due to schema validation errors.
+
+### **Additional Considerations:**
+- **Integration with Schema Registry**: If you're using Confluent's Schema Registry, ensure that schema validation is enabled both at the producer and consumer ends. This helps enforce consistent schema usage across Kafka topics.
+- **Schema Versioning**: Ensure that when schema evolution occurs, versioning is properly handled so that both old and new consumers can work with different schema versions without breaking compatibility.
+
+These test cases ensure robust validation of schemas in Kafka, maintaining data consistency throughout the data pipeline, including Snowflake ingestion.
